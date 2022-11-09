@@ -57,6 +57,26 @@ router.get('/', (req, res) => {
     })
 });
 
+// get results for specific artist
+router.get('/:artist', (req, res) => {
+    //res.send(songs);
+    const artist = req.params.artist;
+    // getting songs from the database
+    let queryText = `
+        SELECT * FROM "songs"
+        WHERE "artist" = $1
+        ORDER BY "rank" DESC
+    ;`;
+    pool.query(queryText, [artist]).then((result) => {    //exact
+    //pool.query(queryText, [%+artist+%]).then((result) => {        // non-exact and the queryText needs where "artist" ilike or like $1
+        console.log('result.rows :', result.rows);
+        res.send(result.rows);
+    }).catch((error) => {
+        console.log(`Error making query: ${queryText}, error is`, error);
+        sendStatus(500);
+    })
+});
+
 router.post('/', (req, res) => {
     //songs.push(req.body);
     //res.sendStatus(200);
@@ -74,5 +94,18 @@ router.post('/', (req, res) => {
         sendStatus(500);
     })
 });
+
+router.delete('/:id', (req, res) => {
+    const id = req.params.id;
+    console.log('Delete request for ID:', id);
+    const queryText = `DELETE FROM "songs" WHERE "id" = $1;`;
+    pool.query(queryText, [id]).then((result) => {
+        console.log('Song deleted!');
+        res.sendStatus(200);
+    }).catch((error) => {
+        console.log(`Error deleting with query ${queryText}, error is:`, error);
+        sendStatus(500);
+    })
+})
 
 module.exports = router;

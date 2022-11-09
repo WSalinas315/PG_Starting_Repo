@@ -3,6 +3,8 @@ $(document).ready(onReady);
 function onReady() {
     getSongs();
     $('#add').on('click', postSong);
+    $('#filter-btn').on('click', getByArtist);
+    $('#songsTableBody').on('click', '.delete-btn', deleteSong);
 }
 
 // get artist data from the server
@@ -13,6 +15,30 @@ function getSongs() {
         url: '/songs'
     }).then(function (response) {
         console.log("GET /songs response", response);
+        // append data to the DOM
+        for (let i = 0; i < response.length; i++) {
+            $('#songsTableBody').append(`
+                <tr>
+                    <td>${response[i].artist}</td>
+                    <td>${response[i].track}</td>
+                    <td>${response[i].rank}</td>
+                    <td>${response[i].published}</td>
+                    <td><button class="delete-btn" data-id="${response[i].id}">Delete Song</button></td>
+                </tr>
+            `);
+        }
+    });
+}
+
+// Get Song By Artist
+function getByArtist() {
+    $("#songsTableBody").empty();
+    const artist = $('#artist-filter').val();
+    $.ajax({
+        type: 'GET',
+        url: `/songs/${artist}`
+    }).then(function (response) {
+        console.log("GET /songs/:artist response", response);
         // append data to the DOM
         for (let i = 0; i < response.length; i++) {
             $('#songsTableBody').append(`
@@ -45,4 +71,16 @@ function postSong() {
         $('#published').val('')
         getSongs();
     });
+}
+
+function deleteSong(){
+    const songID = $(this).data('id');
+    $.ajax({
+        method: 'DELETE',
+        url: `/songs/${songID}`
+    }).then(function(response){
+        getSongs();
+    }).catch(function(error){
+        alert(`ZOMG, NOT SO GOOD AT DELETING!`, error);
+    })
 }
