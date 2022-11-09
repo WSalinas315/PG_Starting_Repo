@@ -47,7 +47,8 @@ let songs = [
 router.get('/', (req, res) => {
     //res.send(songs);
     // getting songs from the database
-    let queryText = 'SELECT * FROM "songs";';
+    let queryText = `SELECT * FROM "songs"
+                    ORDER BY "rank";`;
     pool.query(queryText).then((result) => {
         console.log('result.rows :', result.rows);
         res.send(result.rows);
@@ -107,5 +108,31 @@ router.delete('/:id', (req, res) => {
         sendStatus(500);
     })
 })
+
+// change rank of song
+//req.body will tell us if it's being up or down voted
+router.put('/rank/:id', (req, res) => {
+    const songID = req.params.id;
+    const direction = req.body.direction;
+
+    let queryText = '';
+
+    if(direction === 'up'){
+        queryText = `UPDATE "songs" SET "rank" = "rank" - 1 WHERE "id" = $1;`;
+    } else if(direction === 'down'){
+        queryText = `UPDATE "songs" SET "rank" = "rank" + 1 WHERE "id" = $1;`;
+    } else{
+        // just quit if you don't have direction
+        res.sendStatus(500);
+        return;
+    }
+    pool.query(queryText, [songID]).then((result) => {
+        console.log('Rank has been updated.');
+        res.sendStatus(200);
+    }).catch((error) => {
+        console.log(`Error with updating rank via query ${queryText}, error is:`, error);
+        sendStatus(500);
+    })
+});
 
 module.exports = router;

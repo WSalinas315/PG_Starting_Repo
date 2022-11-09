@@ -5,6 +5,7 @@ function onReady() {
     $('#add').on('click', postSong);
     $('#filter-btn').on('click', getByArtist);
     $('#songsTableBody').on('click', '.delete-btn', deleteSong);
+    $('#songsTableBody').on('click', '.rank-btn', updateRank);
 }
 
 // get artist data from the server
@@ -23,7 +24,10 @@ function getSongs() {
                     <td>${response[i].track}</td>
                     <td>${response[i].rank}</td>
                     <td>${response[i].published}</td>
-                    <td><button class="delete-btn" data-id="${response[i].id}">Delete Song</button></td>
+                    <td><button class="delete-btn" data-id="${response[i].id}">Delete Song</button>
+                        <button class="rank-btn" data-id="${response[i].id}" data-direction="up">UpVote</button>
+                        <button class="rank-btn" data-id="${response[i].id}" data-direction="down">DownVote</button>
+                    </td>
                 </tr>
             `);
         }
@@ -82,5 +86,19 @@ function deleteSong(){
         getSongs();
     }).catch(function(error){
         alert(`ZOMG, NOT SO GOOD AT DELETING!`, error);
+    })
+}
+
+function updateRank(){
+    const id = $(this).data('id');
+    const direction = $(this).data('direction');
+    $.ajax({
+        method: 'PUT',
+        url: `/songs/rank/${id}`,
+        data: {direction: direction}
+    }).then(function(){
+        getSongs();
+    }).catch(function(error){
+        alert(`This is whack:`, error)
     })
 }
