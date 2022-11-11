@@ -6,3 +6,23 @@ body{
     border-collapse: collapse;
     padding: 10px;
 }
+
+.four-hundreds{
+    background-color: blanchedalmond;
+    color: maroon;
+}
+
+.Beyonce{
+    border: 4px hotpink dashed;
+}
+
+.Metallica{
+    background-color: black;
+    color: red;
+    border: 2px white solid;
+}
+
+.Billy{
+    background-color: rebeccapurple;
+    color: gold;
+}
